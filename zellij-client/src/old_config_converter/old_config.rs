@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use url::Url;
 
 const ON_FORCE_CLOSE_DESCRIPTION: &'static str = "
