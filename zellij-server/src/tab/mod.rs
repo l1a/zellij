@@ -7,6 +7,7 @@ mod layout_applier;
 mod swap_layouts;
 
 use copy_command::CopyCommand;
+use serde::{Deserialize, Serialize};
 use std::env::temp_dir;
 use std::net::IpAddr;
 use std::path::PathBuf;
@@ -278,7 +279,6 @@ pub(crate) struct Tab {
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
-#[serde(crate = "self::serde")]
 #[allow(dead_code)]
 pub(crate) struct TabData {
     pub position: usize,
