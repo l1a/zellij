@@ -116,6 +116,7 @@ pub enum ClientToServerMsg {
     },
     AttachWatcherClient {
         terminal_size: Size,
+        is_web_client: bool,
     },
     Action {
         action: Action,
@@ -301,10 +302,7 @@ where
                     None
                 },
             },
-            Err(e) => {
-                warn!("Error in protobuf IpcReceiver.recv_client_msg(): {:?}", e);
-                None
-            },
+            Err(_e) => None,
         }
     }
 
@@ -317,10 +315,7 @@ where
                     None
                 },
             },
-            Err(e) => {
-                warn!("Error in protobuf IpcReceiver.recv_server_msg(): {:?}", e);
-                None
-            },
+            Err(_e) => None,
         }
     }
 
@@ -391,10 +386,7 @@ pub fn recv_protobuf_client_to_server(
                 None
             },
         },
-        Err(e) => {
-            warn!("Error reading protobuf message: {:?}", e);
-            None
-        },
+        Err(_e) => None,
     }
 }
 
@@ -409,9 +401,6 @@ pub fn recv_protobuf_server_to_client(
                 None
             },
         },
-        Err(e) => {
-            warn!("Error reading protobuf message: {:?}", e);
-            None
-        },
+        Err(_e) => None,
     }
 }

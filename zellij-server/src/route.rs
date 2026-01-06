@@ -28,7 +28,7 @@ use zellij_utils::{
         command::TerminalAction,
         get_mode_info,
         keybinds::Keybinds,
-        layout::Layout,
+        layout::{Layout, TiledPaneLayout},
     },
     ipc::{
         ClientAttributes, ClientToServerMsg, ExitReason, IpcReceiverWithContext, ServerToClientMsg,
@@ -1114,6 +1114,39 @@ pub(crate) fn route_action(
                 ))
                 .with_context(err_context)?;
         },
+        Action::OverrideLayout {
+            tiled_layout,
+            floating_layouts,
+            swap_tiled_layouts,
+            swap_floating_layouts,
+            tab_name,
+            retain_existing_terminal_panes,
+            retain_existing_plugin_panes,
+        } => {
+            // Extract required layout fields, use defaults if None
+            let cwd = None;
+            let shell = default_shell.clone();
+            let tiled = tiled_layout.unwrap_or_else(|| TiledPaneLayout::default());
+            let floating = floating_layouts;
+            let swap_tiled = swap_tiled_layouts;
+            let swap_floating = swap_floating_layouts;
+
+            senders
+                .send_to_screen(ScreenInstruction::OverrideLayout(
+                    cwd,
+                    shell,
+                    tab_name,
+                    tiled,
+                    floating,
+                    swap_tiled,
+                    swap_floating,
+                    retain_existing_terminal_panes,
+                    retain_existing_plugin_panes,
+                    client_id,
+                    Some(NotificationEnd::new(completion_tx)),
+                ))
+                .with_context(err_context)?;
+        },
         Action::QueryTabNames => {
             senders
                 .send_to_screen(ScreenInstruction::QueryTabNames(
@@ -1926,12 +1959,39 @@ pub(crate) fn route_thread_main(
                                     .send(ServerInstruction::SendWebClientsForbidden(client_id));
                             }
                         },
-                        ClientToServerMsg::AttachWatcherClient { terminal_size } => {
-                            let attach_watcher_instruction =
-                                ServerInstruction::AttachWatcherClient(client_id, terminal_size);
-                            to_server
-                                .send(attach_watcher_instruction)
-                                .with_context(err_context)?;
+                        ClientToServerMsg::AttachWatcherClient {
+                            terminal_size,
+                            is_web_client,
+                        } => {
+                            let allow_web_connections = session_data
+                                .read()
+                                .ok()
+                                .and_then(|s| {
+                                    s.as_ref().map(|s| s.web_sharing.web_clients_allowed())
+                                })
+                                .unwrap_or(false);
+                            let should_allow_connection = !is_web_client || allow_web_connections;
+
+                            if should_allow_connection {
+                                let attach_watcher_instruction =
+                                    ServerInstruction::AttachWatcherClient(
+                                        client_id,
+                                        terminal_size,
+                                        is_web_client,
+                                    );
+                                to_server
+                                    .send(attach_watcher_instruction)
+                                    .with_context(err_context)?;
+                            } else {
+                                let error = "This session does not allow web connections.";
+                                let _ = to_server.send(ServerInstruction::LogError(
+                                    vec![error.to_owned()],
+                                    client_id,
+                                    None,
+                                ));
+                                let _ = to_server
+                                    .send(ServerInstruction::SendWebClientsForbidden(client_id));
+                            }
                         },
                         ClientToServerMsg::ClientExited => {
                             let _ = to_server.send(ServerInstruction::RemoveClient(client_id));

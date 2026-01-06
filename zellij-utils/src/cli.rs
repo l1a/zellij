@@ -169,27 +169,33 @@ pub struct WebCli {
     /// retrieved. Returns the token name and the token.
     #[clap(long, value_parser, exclusive(true), display_order = 5)]
     pub create_token: bool,
+    /// Optional name for the token
+    #[clap(long, value_parser, value_name = "TOKEN_NAME", display_order = 6)]
+    pub token_name: Option<String>,
+    /// Create a read-only login token (can only attach to existing sessions as watcher)
+    #[clap(long, value_parser, exclusive(true), display_order = 7)]
+    pub create_read_only_token: bool,
     /// Revoke a login token by its name
     #[clap(
         long,
         value_parser,
         exclusive(true),
         value_name = "TOKEN NAME",
-        display_order = 6
+        display_order = 8
     )]
     pub revoke_token: Option<String>,
     /// Revoke all login tokens
-    #[clap(long, value_parser, exclusive(true), display_order = 7)]
+    #[clap(long, value_parser, exclusive(true), display_order = 9)]
     pub revoke_all_tokens: bool,
     /// List token names and their creation dates (cannot show actual tokens)
-    #[clap(long, value_parser, exclusive(true), display_order = 8)]
+    #[clap(long, value_parser, exclusive(true), display_order = 10)]
     pub list_tokens: bool,
     /// The ip address to listen on locally for connections (defaults to 127.0.0.1)
     #[clap(
         long,
         value_parser,
         conflicts_with_all(&["stop", "status", "create-token", "revoke-token", "revoke-all-tokens"]),
-        display_order = 9
+        display_order = 11
     )]
     pub ip: Option<IpAddr>,
     /// The port to listen on locally for connections (defaults to 8082)
@@ -197,7 +203,7 @@ pub struct WebCli {
         long,
         value_parser,
         conflicts_with_all(&["stop", "status", "create-token", "revoke-token", "revoke-all-tokens"]),
-        display_order = 10
+        display_order = 12
     )]
     pub port: Option<u16>,
     /// The path to the SSL certificate (required if not listening on 127.0.0.1)
@@ -205,7 +211,7 @@ pub struct WebCli {
         long,
         value_parser,
         conflicts_with_all(&["stop", "status", "create-token", "revoke-token", "revoke-all-tokens"]),
-        display_order = 11
+        display_order = 13
     )]
     pub cert: Option<PathBuf>,
     /// The path to the SSL key (required if not listening on 127.0.0.1)
@@ -213,7 +219,7 @@ pub struct WebCli {
         long,
         value_parser,
         conflicts_with_all(&["stop", "status", "create-token", "revoke-token", "revoke-all-tokens"]),
-        display_order = 12
+        display_order = 14
     )]
     pub key: Option<PathBuf>,
 }
@@ -224,6 +230,7 @@ impl WebCli {
             || !(self.stop
                 || self.status
                 || self.create_token
+                || self.create_read_only_token
                 || self.revoke_token.is_some()
                 || self.revoke_all_tokens
                 || self.list_tokens)
@@ -952,6 +959,24 @@ pub enum CliAction {
     },
     PreviousSwapLayout,
     NextSwapLayout,
+    /// Override the layout of the active tab
+    OverrideLayout {
+        /// Path to the layout file
+        #[clap(value_parser)]
+        layout: PathBuf,
+
+        /// Default folder to look for layouts
+        #[clap(long, value_parser)]
+        layout_dir: Option<PathBuf>,
+
+        /// Retain existing terminal panes that do not fit in the layout (default: false)
+        #[clap(long, value_parser, takes_value(false), default_value("false"))]
+        retain_existing_terminal_panes: bool,
+
+        /// Retain existing plugin panes that do not fit with the layout default: false)
+        #[clap(long, value_parser, takes_value(false), default_value("false"))]
+        retain_existing_plugin_panes: bool,
+    },
     /// Query all tab names
     QueryTabNames,
     StartOrReloadPlugin {
