@@ -224,11 +224,11 @@ impl State {
                 #[cfg(target_family = "wasm")]
                 close_self();
             },
-            Some((PipeSource::Cli(pipe_id), _args)) => {
+            Some((PipeSource::Cli(_pipe_id), _args)) => {
                 #[cfg(target_family = "wasm")]
-                cli_pipe_output(pipe_id, &selected_path.display().to_string());
+                cli_pipe_output(_pipe_id, &selected_path.display().to_string());
                 #[cfg(target_family = "wasm")]
-                unblock_cli_pipe_input(pipe_id);
+                unblock_cli_pipe_input(_pipe_id);
                 #[cfg(target_family = "wasm")]
                 close_self();
             },

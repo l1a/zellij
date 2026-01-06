@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 #[allow(unused_imports)]
 use std::io::prelude::*;
+
+#[allow(unused_imports)] // This import is required for compilation despite the linter warning
 use zellij_tile::prelude::actions::Action;
 use zellij_tile::prelude::*;
 

@@ -783,6 +783,7 @@ impl CopyOptions {
 #[derive(Debug, Clone)]
 pub struct RenderBlocker {
     blocking_plugins: HashMap<u32, Instant>,
+    #[allow(dead_code)] // preserved for future use or legacy reasons
     timeout_ms: u64,
 }
 
@@ -906,7 +907,9 @@ pub(crate) struct Screen {
     default_shell: PathBuf,
     styled_underlines: bool,
     arrow_fonts: bool,
+    #[allow(dead_code)] // preserved for future use or legacy reasons
     layout_dir: Option<PathBuf>,
+    #[allow(dead_code)] // preserved for future use or legacy reasons
     default_layout_name: Option<String>,
     explicitly_disable_kitty_keyboard_protocol: bool,
     default_editor: Option<PathBuf>,

@@ -138,9 +138,9 @@ impl ZellijPlugin for State {
 
     fn pipe(&mut self, pipe_message: PipeMessage) -> bool {
         if pipe_message.is_private && pipe_message.name == "filepicker" {
-            if let PipeSource::Cli(pipe_id) = &pipe_message.source {
+            if let PipeSource::Cli(_pipe_id) = &pipe_message.source {
                 #[cfg(target_family = "wasm")]
-                block_cli_pipe_input(pipe_id);
+                block_cli_pipe_input(_pipe_id);
             }
             self.handling_filepick_request_from = Some((pipe_message.source, pipe_message.args));
             true

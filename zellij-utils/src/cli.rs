@@ -118,7 +118,7 @@ pub fn print_completions(shell: String, cmd: &mut clap::Command) {
         Err(_) => {
             eprintln!("Unsupported shell: {}", shell);
             std::process::exit(1);
-        }
+        },
     };
     generate(shell, cmd, "zellij", &mut std::io::stdout());
 }

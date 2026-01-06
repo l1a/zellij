@@ -11,7 +11,7 @@
 
 use anyhow::Context;
 use colored::*;
-use log::error;
+
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::path::PathBuf;
@@ -592,7 +592,8 @@ Possible fix for your problem:
     Run `zellij setup --dump-plugins`, and optionally point it to your
     'DATA DIR', visible in e.g. the output of `zellij setup --check`. Without
     further arguments, it will use the default 'DATA DIR'.
-"
+
+Error: {source}"
     )]
     BuiltinPluginMissing {
         plugin_path: PathBuf,
@@ -615,7 +616,8 @@ If you think this is a bug and the plugin is indeed an internal plugin, please
 open an issue on GitHub:
 
     https://github.com/zellij-org/zellij/issues
-"
+
+Error: {source}"
     )]
     BuiltinPluginNonexistent {
         plugin_path: PathBuf,
@@ -625,13 +627,13 @@ open an issue on GitHub:
 
     // this is a temporary hack until we're able to merge custom errors from within the various
     // crates themselves without having to move their payload types here
-    #[error("Cannot resize fixed panes")]
+    #[error("Cannot resize fixed panes: {pane_ids:?}")]
     CantResizeFixedPanes { pane_ids: Vec<(u32, bool)> }, // bool: 0 => terminal_pane, 1 =>
     // plugin_pane
     #[error("Pane size remains unchanged")]
     PaneSizeUnchanged,
 
-    #[error("an error occured")]
+    #[error("an error occured: {source}")]
     GenericError { source: anyhow::Error },
 
     #[error("Client {client_id} is too slow to handle incoming messages")]
@@ -651,6 +653,7 @@ pub use not_wasm::*;
 mod not_wasm {
     use super::*;
     use crate::channels::{SenderWithContext, ASYNCOPENCALLS, OPENCALLS};
+    use log::error;
     use miette::{Diagnostic, GraphicalReportHandler, GraphicalTheme, Report};
     use std::panic::PanicHookInfo;
     use thiserror::Error as ThisError;

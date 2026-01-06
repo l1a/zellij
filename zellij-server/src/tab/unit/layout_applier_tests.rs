@@ -6397,7 +6397,7 @@ fn test_override_tiled_retain_plugin_panes_no_matches() {
         arrow_fonts,
         styled_underlines,
         explicitly_disable_kitty_keyboard_protocol,
-        pty_receiver,
+        _pty_receiver,
         plugin_receiver,
     ) = create_layout_applier_fixtures_with_receivers(size);
 
@@ -6696,7 +6696,7 @@ fn test_override_floating_retain_plugin_panes_no_matches() {
         arrow_fonts,
         styled_underlines,
         explicitly_disable_kitty_keyboard_protocol,
-        pty_receiver,
+        _pty_receiver,
         plugin_receiver,
     ) = create_layout_applier_fixtures_with_receivers(size);
 
